@@ -1,0 +1,73 @@
+import Button from '../../components/Button.jsx';
+import ValueChart from '../../components/ValueChart.jsx';
+
+/** Pre-drill screen: what the lesson is, the goal, the values to remember and the speed slider. */
+export default function LessonIntro({ lesson, unit, system, review, speedMs, onSpeedChange, onStart, onQuit }) {
+  const cfg = lesson.config || {};
+  const timed = !!cfg.baseSpeedMs;
+  const per = cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
+  const min = cfg.minSpeedMs ?? Math.round((cfg.baseSpeedMs || 1000) / 3);
+  const max = Math.round((cfg.baseSpeedMs || 1000) * 1.5);
+
+  return (
+    <div className="mx-auto flex min-h-full max-w-md flex-col px-5 pb-safe pt-4">
+      <div className="flex items-center justify-between">
+        <button type="button" onClick={onQuit} className="text-sm font-bold text-ink-500">
+          ← Back
+        </button>
+        <span className="text-[11px] font-black uppercase tracking-wider text-ink-500">
+          Unit {unit.number} · {unit.title}
+        </span>
+      </div>
+
+      <div className="mt-6 flex flex-col items-center text-center">
+        <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-brand-50 text-4xl shadow-sm">{unit.icon}</div>
+        <h1 className="mt-4 text-3xl font-black">{lesson.title}</h1>
+        <p className="mt-2 font-semibold text-ink-700">{lesson.blurb}</p>
+        {lesson.goal && <p className="mt-3 rounded-2xl bg-brand-50 px-3 py-2 text-sm font-bold text-brand-700">🎯 {lesson.goal}</p>}
+        {review && <p className="mt-2 rounded-2xl bg-xp-400/20 px-3 py-2 text-sm font-bold text-xp-600">🔁 Review: no hearts at stake, half XP, and your hearts refill at the end.</p>}
+      </div>
+
+      {(lesson.type === 'cardValues' || lesson.type === 'runningCount') && (
+        <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm">
+          <h2 className="mb-3 text-sm font-black uppercase tracking-wide text-ink-500">{system.name} values</h2>
+          <ValueChart system={system} compact />
+          {lesson.type === 'runningCount' && <p className="mt-3 text-xs font-semibold text-ink-500">Start every drill at 0 and add each card’s tag as it appears.</p>}
+        </div>
+      )}
+
+      {timed && (
+        <div className="mt-4 rounded-3xl bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between text-sm font-black">
+            <span>Speed</span>
+            <span className="tabular-nums text-brand-600">
+              {(speedMs / 1000).toFixed(2)}s {per}
+              {cfg.mode === 'deckCountdown' && <span className="text-ink-500"> · ≈{Math.round((speedMs * 51) / 1000)}s per deck</span>}
+            </span>
+          </div>
+          <input
+            type="range"
+            min={min}
+            max={max}
+            step={50}
+            value={Math.min(max, Math.max(min, speedMs))}
+            onChange={(e) => onSpeedChange(Number(e.target.value))}
+            className="mt-2 w-full accent-brand-500"
+            aria-label="Drill speed"
+          />
+          <div className="flex justify-between text-[11px] font-bold text-ink-500">
+            <span>Faster</span>
+            <span>Slower</span>
+          </div>
+          <p className="mt-2 text-xs font-semibold text-ink-500">Speeds up automatically after accurate runs, and eases off after rough ones.</p>
+        </div>
+      )}
+
+      <div className="mt-auto pt-6">
+        <Button full size="lg" variant="success" onClick={onStart}>
+          Start {review ? '' : `· +${lesson.xp} XP`}
+        </Button>
+      </div>
+    </div>
+  );
+}
