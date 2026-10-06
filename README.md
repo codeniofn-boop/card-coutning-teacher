@@ -18,6 +18,7 @@ Single-page React 19 + Tailwind 4 app built with Vite. All state lives in memory
 - **Onboarding**: pick one of eight counting systems (Hi-Lo recommended), with a comparison screen.
 - **Learning path**: 11 units with snake-style nodes. Lessons unlock in order; mastered skills decay over time and show as "needs review".
 - **Unit 1 · Reality check**: an honest, short lesson on legality, edge size, variance and bankroll.
+- **Unit 2 · Basic strategy**: hand-plus-upcard drills for hard totals, soft totals, pairs and surrender, plus a timed mixed sprint, with colour-coded charts and an S17/H17 toggle.
 - **Unit 3 · Card values**: flashcards (untimed, timed, lightning).
 - **Unit 4 · Running count**: count-along with multiple choice, auto-flashing singles, pairs and full hands with checkpoints, and a timed deck countdown.
 - **Gamification**: XP with level titles, daily streak with automatic streak freezes, hearts lost on mistakes (regenerate every 30 minutes or refill via a review session), badges, adaptive drill speed, per-skill accuracy and best-time stats.
