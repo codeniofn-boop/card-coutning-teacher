@@ -9,6 +9,7 @@
  *               'strategy'      Unit 2 basic strategy hands
  *               'cardValues'    Unit 3 flashcards
  *               'runningCount'  Unit 4 drills (see config.mode)
+ *               'cancellation'  Unit 5 drills (see config.mode)
  *               'reality'       the short honest-framing lesson
  *               'stub'          not built yet — shows a "coming soon" sheet
  *   config    drill-specific settings (counts, speeds)
@@ -197,9 +198,34 @@ export const UNITS = [
     icon: '🤝',
     blurb: 'Spot pairs that cancel out (a 5 and a king) so you count faster.',
     lessons: [
-      { id: 'cancel-pairs', title: 'Canceling pairs', blurb: 'Which two cards add to zero?', type: 'stub', xp: 15 },
-      { id: 'cancel-hands', title: 'Cancel the hand', blurb: 'Strike out the pairs, count what is left.', type: 'stub', xp: 20 },
-      { id: 'cancel-speed', title: 'Cancel sprint', blurb: 'Full hands at speed using cancellation.', type: 'stub', xp: 25 },
+      {
+        id: 'cancel-pairs',
+        title: 'Canceling pairs',
+        blurb: 'Two cards at a time. See the pair as one number, often zero.',
+        type: 'cancellation',
+        config: { mode: 'pairs', count: 16, handSize: 2 },
+        xp: 15,
+        goal: '16 pairs with 80% accuracy',
+      },
+      {
+        id: 'cancel-hands',
+        title: 'Cancel the hand',
+        blurb: 'Tap the cards that cancel each other, then count what is left.',
+        type: 'cancellation',
+        config: { mode: 'strike', count: 10, handSize: [4, 6] },
+        xp: 20,
+        goal: '10 hands with 80% accuracy',
+      },
+      {
+        id: 'cancel-speed',
+        title: 'Cancel sprint',
+        blurb: 'Full hands against the clock. Cancel in your head and tap the total.',
+        type: 'cancellation',
+        config: { mode: 'sprint', count: 20, handSize: [4, 7], timed: true, baseSpeedMs: 4000, minSpeedMs: 1200 },
+        xp: 25,
+        goal: '20 hands at 4 seconds each with 90% accuracy',
+        passAccuracy: 0.9,
+      },
     ],
   },
   {

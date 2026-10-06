@@ -6,7 +6,7 @@ import StrategyChart from '../../components/StrategyChart.jsx';
 export default function LessonIntro({ lesson, unit, system, review, rules, speedMs, onSpeedChange, onStart, onQuit }) {
   const cfg = lesson.config || {};
   const timed = !!cfg.baseSpeedMs;
-  const per = lesson.type === 'strategy' ? 'per hand' : cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
+  const per = lesson.type === 'strategy' || lesson.type === 'cancellation' ? 'per hand' : cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
   const min = cfg.minSpeedMs ?? Math.round((cfg.baseSpeedMs || 1000) / 3);
   const max = Math.round((cfg.baseSpeedMs || 1000) * 1.5);
 
@@ -29,11 +29,14 @@ export default function LessonIntro({ lesson, unit, system, review, rules, speed
         {review && <p className="mt-2 rounded-2xl bg-xp-400/20 px-3 py-2 text-sm font-bold text-xp-600">🔁 Review: no hearts at stake, half XP, and your hearts refill at the end.</p>}
       </div>
 
-      {(lesson.type === 'cardValues' || lesson.type === 'runningCount') && (
+      {(lesson.type === 'cardValues' || lesson.type === 'runningCount' || lesson.type === 'cancellation') && (
         <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm">
           <h2 className="mb-3 text-sm font-black uppercase tracking-wide text-ink-500">{system.name} values</h2>
           <ValueChart system={system} compact />
           {lesson.type === 'runningCount' && <p className="mt-3 text-xs font-semibold text-ink-500">Start every drill at 0 and add each card’s tag as it appears.</p>}
+          {lesson.type === 'cancellation' && (
+            <p className="mt-3 text-xs font-semibold text-ink-500">A +1 and a −1 cancel to 0. Strike those pairs out mentally and only count what is left; it halves the work on a busy table.</p>
+          )}
         </div>
       )}
 

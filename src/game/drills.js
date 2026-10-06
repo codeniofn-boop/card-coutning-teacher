@@ -8,7 +8,7 @@
 import { buildShoe, drawCards } from './shoe.js';
 import { makeCard, RANKS, SUITS, handValue, isTenValue } from './cards.js';
 import { ACTION_LABELS, DEFAULT_RULES, basicStrategyAction, strategyCode } from './basicStrategy.js';
-import { cardValue, runningCountTrail, distinctValues, hasHalfValues, roundCount } from './countingSystems.js';
+import { cardValue, runningCount, runningCountTrail, distinctValues, hasHalfValues, roundCount } from './countingSystems.js';
 
 /**
  * Unit 3 — card value flashcards.
@@ -89,14 +89,14 @@ export function generateDeckCountdown({ system, removed = 1, rng = Math.random }
 }
 
 /**
- * Three answer choices around the correct count: the right one plus two
- * nearby distractors. Half-value systems use ½ steps.
+ * `n` answer choices around the correct count: the right one plus nearby
+ * distractors. Half-value systems use ½ steps.
  */
-export function countChoices(correct, system, rng = Math.random) {
+export function countChoices(correct, system, rng = Math.random, n = 3) {
   const step = hasHalfValues(system) ? 0.5 : 1;
-  const offsets = [-2, -1, 1, 2].map((o) => o * step);
+  const offsets = [-3, -2, -1, 1, 2, 3].map((o) => o * step);
   const picks = new Set([correct]);
-  while (picks.size < 3) {
+  while (picks.size < n) {
     picks.add(roundCount(correct + offsets[Math.floor(rng() * offsets.length)]));
   }
   const arr = [...picks];
@@ -231,4 +231,78 @@ export function generateStrategyDrill({ category = 'mixed', count = 15, rules = 
     });
   }
   return { items, actions: ['H', 'S', 'D', 'P', 'R'].map((a) => ({ id: a, label: ACTION_LABELS[a] })) };
+}
+
+// ---------------------------------------------------------------- Unit 5: cancellation
+
+/**
+ * Cancellation drill: hands whose cards partly cancel out.
+ *   handSize     number or [min, max]
+ *   cancelBias   0–1, how often a hand is built to contain cancelling pairs
+ * Each item: { cards, sum, choices, pairs } where `pairs` lists index pairs that
+ * cancel (for feedback), and `choices` has five options including `sum`.
+ */
+export function generateCancellationDrill({ system, count = 12, handSize = 2, cancelBias = 0.6, rng = Math.random }) {
+  // Enough decks that the pools can never run dry (which would loop forever).
+  const maxSize = Array.isArray(handSize) ? handSize[1] : handSize;
+  const deck = buildShoe({ decks: Math.max(2, Math.ceil((count * maxSize * 1.5) / 52)), rng });
+  const byValue = new Map();
+  for (const card of deck) {
+    const v = cardValue(system, card);
+    if (!byValue.has(v)) byValue.set(v, []);
+    byValue.get(v).push(card);
+  }
+  const take = (v) => {
+    const pool = byValue.get(v);
+    return pool && pool.length ? pool.pop() : null;
+  };
+  const values = [...byValue.keys()];
+  const size = () => (Array.isArray(handSize) ? handSize[0] + Math.floor(rng() * (handSize[1] - handSize[0] + 1)) : handSize);
+  const items = [];
+  while (items.length < count) {
+    const n = size();
+    const cards = [];
+    // Seed with cancelling pairs when biased to.
+    while (cards.length + 1 < n && rng() < cancelBias) {
+      const v = values[Math.floor(rng() * values.length)];
+      if (v === 0 || !byValue.has(-v)) continue;
+      const a = take(v);
+      const b = take(-v);
+      if (a && b) cards.push(a, b);
+    }
+    let guard = 0;
+    while (cards.length < n && guard++ < 500) {
+      const v = values[Math.floor(rng() * values.length)];
+      const c = take(v);
+      if (c) cards.push(c);
+    }
+    // Shuffle the hand so pairs are not adjacent.
+    for (let i = cards.length - 1; i > 0; i--) {
+      const j = Math.floor(rng() * (i + 1));
+      [cards[i], cards[j]] = [cards[j], cards[i]];
+    }
+    const sum = runningCount(system, cards);
+    items.push({ cards, sum, choices: countChoices(sum, system, rng, 5), pairs: cancellingPairs(system, cards) });
+  }
+  return { items };
+}
+
+/** Greedy list of [i, j] index pairs whose tags sum to zero. */
+export function cancellingPairs(system, cards) {
+  const used = new Set();
+  const out = [];
+  for (let i = 0; i < cards.length; i++) {
+    if (used.has(i)) continue;
+    const v = cardValue(system, cards[i]);
+    if (v === 0) continue;
+    for (let j = i + 1; j < cards.length; j++) {
+      if (!used.has(j) && cardValue(system, cards[j]) === -v) {
+        used.add(i);
+        used.add(j);
+        out.push([i, j]);
+        break;
+      }
+    }
+  }
+  return out;
 }

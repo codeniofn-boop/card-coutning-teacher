@@ -19,13 +19,14 @@ Single-page React 19 + Tailwind 4 app built with Vite. All state lives in memory
 - **Learning path**: 11 units with snake-style nodes. Lessons unlock in order; mastered skills decay over time and show as "needs review".
 - **Unit 1 · Reality check**: an honest, short lesson on legality, edge size, variance and bankroll.
 - **Unit 2 · Basic strategy**: hand-plus-upcard drills for hard totals, soft totals, pairs and surrender, plus a timed mixed sprint, with colour-coded charts and an S17/H17 toggle.
+- **Unit 5 · Cancellation**: see a pair as one number, strike out cancelling cards in a hand and net the rest, then a timed sprint.
 - **Unit 3 · Card values**: flashcards (untimed, timed, lightning).
 - **Unit 4 · Running count**: count-along with multiple choice, auto-flashing singles, pairs and full hands with checkpoints, and a timed deck countdown.
 - **Gamification**: XP with level titles, daily streak with automatic streak freezes, hearts lost on mistakes (regenerate every 30 minutes or refill via a review session), badges, adaptive drill speed, per-skill accuracy and best-time stats.
 - **Feedback**: every completion screen lists exactly which card or checkpoint went wrong, what was entered versus what was correct, and can replay the full card sequence with the running count under each group.
 - **Review**: a spaced-repetition tab that surfaces the weakest practised skills.
 
-Everything else on the path (cancellation, deck estimation, true count, bet spreading, deviations, full table, casino conditions) is stubbed with a "coming soon" preview so the structure is visible. Stub lessons never block the path.
+Everything else on the path (deck estimation, true count, bet spreading, deviations, full table, casino conditions) is stubbed with a "coming soon" preview so the structure is visible. Stub lessons never block the path.
 
 ## Project layout
 

@@ -75,3 +75,31 @@ test('describeHand', () => {
   assert.equal(describeHand([makeCard('K', 'S'), makeCard('Q', 'H')]), 'Pair of 10s');
   assert.equal(describeHand([makeCard('A', 'S'), makeCard('A', 'H')]), 'Pair of aces');
 });
+
+import { generateCancellationDrill, cancellingPairs } from '../src/game/drills.js';
+
+test('cancellation drill hands sum correctly and offer five choices', () => {
+  const d = generateCancellationDrill({ system: hilo, count: 20, handSize: [4, 6], rng: createRng(8) });
+  assert.equal(d.items.length, 20);
+  for (const item of d.items) {
+    assert.ok(item.cards.length >= 4 && item.cards.length <= 6);
+    assert.equal(item.sum, runningCount(hilo, item.cards));
+    assert.equal(item.choices.length, 5);
+    assert.ok(item.choices.includes(item.sum));
+    for (const [a, b] of item.pairs) assert.equal(runningCount(hilo, [item.cards[a], item.cards[b]]), 0);
+  }
+  const pairs = generateCancellationDrill({ system: hilo, count: 40, handSize: 2, cancelBias: 0.45, rng: createRng(1) });
+  assert.ok(pairs.items.filter((i) => i.sum === 0).length >= 8, 'a good share of pairs cancel');
+});
+
+test('cancellingPairs finds matching tags', () => {
+  const { makeCard: mc } = { makeCard };
+  const cards = [mc('5', 'S'), mc('8', 'H'), mc('K', 'D'), mc('2', 'C'), mc('A', 'S')];
+  assert.deepEqual(cancellingPairs(hilo, cards), [[0, 2], [3, 4]]);
+});
+
+test('cancellation sprint config never exhausts the shoe', () => {
+  const d = generateCancellationDrill({ system: hilo, count: 20, handSize: [4, 7], cancelBias: 0.7, rng: createRng(3) });
+  assert.equal(d.items.length, 20);
+  for (const item of d.items) assert.ok(item.cards.length >= 4 && item.cards.length <= 7);
+});

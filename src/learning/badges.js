@@ -45,6 +45,13 @@ export const BADGES = [
     check: ({ track }) => ['strategy-hard', 'strategy-soft', 'strategy-pairs', 'strategy-surrender', 'strategy-mixed'].every((id) => track.skills[id]?.completions > 0),
   },
   {
+    id: 'eraser',
+    name: 'Eraser',
+    icon: '🤝',
+    description: 'Pass Cancel sprint with 90% accuracy or better.',
+    check: ({ lesson, result }) => lesson.id === 'cancel-speed' && result.passed,
+  },
+  {
     id: 'running-start',
     name: 'Running start',
     icon: '🧮',

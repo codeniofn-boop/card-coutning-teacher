@@ -6,6 +6,7 @@ import LessonIntro from './LessonIntro.jsx';
 import DrillHeader from './DrillHeader.jsx';
 import CardValuesDrill from './CardValuesDrill.jsx';
 import StrategyDrill from './StrategyDrill.jsx';
+import CancellationDrill from './CancellationDrill.jsx';
 import { DEFAULT_RULES } from '../../game/basicStrategy.js';
 import RunningCountDrill from './RunningCountDrill.jsx';
 import RealityCheckLesson from './RealityCheckLesson.jsx';
@@ -17,6 +18,7 @@ const DRILLS = {
   strategy: StrategyDrill,
   cardValues: CardValuesDrill,
   runningCount: RunningCountDrill,
+  cancellation: CancellationDrill,
   reality: RealityCheckLesson,
 };
 
