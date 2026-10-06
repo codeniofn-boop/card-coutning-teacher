@@ -36,7 +36,7 @@ export function initialState(now = Date.now()) {
     badges: [], // { id, earnedAt }
     history: [], // { lessonId, systemId, at, accuracy, passed, review, xp }
     lastCompletion: null,
-    settings: { speedMultiplier: 1, dealerHitsSoft17: false },
+    settings: { speedMultiplier: 1, dealerHitsSoft17: false, unlockAll: false },
   };
 }
 
@@ -78,6 +78,9 @@ export function reducer(state, action) {
       const next = { ...emptySkill(), ...(skill || {}), speedMs: action.speedMs };
       return { ...state, tracks: { ...state.tracks, [state.systemId]: { ...track, skills: { ...track.skills, [action.lessonId]: next } } } };
     }
+
+    case 'setUnlockAll':
+      return { ...state, settings: { ...state.settings, unlockAll: !!action.value } };
 
     case 'setDealerHitsSoft17':
       return { ...state, settings: { ...state.settings, dealerHitsSoft17: !!action.value } };

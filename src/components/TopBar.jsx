@@ -6,7 +6,7 @@ export default function TopBar() {
   const { state, system, hearts, navigate } = useStore();
   const alive = streakAlive(state.streak, Date.now());
   return (
-    <header className="sticky top-0 z-20 border-b border-ink-100 bg-paper/90 backdrop-blur">
+    <header className="sticky z-20 border-b border-ink-100 bg-paper/90 backdrop-blur" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
       <div className="mx-auto flex h-14 max-w-md items-center justify-between px-4">
         <button
           type="button"

@@ -66,6 +66,15 @@ export default function LessonComplete() {
         {result.speedMs && <span className="rounded-full bg-white px-2 py-1 shadow-sm">{(result.speedMs / 1000).toFixed(2)}s per flash</span>}
       </div>
 
+      {result.countAccuracy != null && (
+        <div className="mt-3 grid grid-cols-4 gap-2 text-center text-xs font-black">
+          <Mini label="Counts" value={pct(result.countAccuracy)} />
+          <Mini label="Bets" value={pct(result.betAccuracy)} />
+          <Mini label="Plays" value={pct(result.playAccuracy)} />
+          <Mini label="Net" value={`${result.netUnits >= 0 ? '+' : '−'}${Math.abs(result.netUnits)}u`} />
+        </div>
+      )}
+
       <div className="mt-5 space-y-2">
         <Banner icon="🔥" text={streakLine} tone="bg-flame-500" />
         {c.levelUp && <Banner icon="⬆️" text={`Level ${c.levelUp} reached!`} tone="bg-brand-500" />}
@@ -125,6 +134,19 @@ export default function LessonComplete() {
           {result.passed ? 'Play again' : 'Try again'}
         </Button>
       </div>
+    </div>
+  );
+}
+
+function pct(v) {
+  return v == null ? '—' : `${Math.round(v * 100)}%`;
+}
+
+function Mini({ label, value }) {
+  return (
+    <div className="rounded-xl bg-white px-2 py-2 shadow-sm">
+      <div className="text-[10px] uppercase tracking-wide text-ink-500">{label}</div>
+      <div className="text-base tabular-nums">{value}</div>
     </div>
   );
 }

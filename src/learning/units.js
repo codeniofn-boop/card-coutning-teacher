@@ -10,7 +10,9 @@
  *               'cardValues'    Unit 3 flashcards
  *               'runningCount'  Unit 4 drills (see config.mode)
  *               'cancellation'  Unit 5 drills (see config.mode)
- *               'reality'       the short honest-framing lesson
+ *               'reading'       text pages with quick checks (content in readings.js)
+ *               'deckEstimation' | 'trueCount' | 'bet' | 'deviation'   Units 6–9 multiple-choice drills
+ *               'table'         Unit 10/11 full-table simulator
  *               'stub'          not built yet — shows a "coming soon" sheet
  *   config    drill-specific settings (counts, speeds)
  *   xp        base XP for a pass
@@ -34,11 +36,11 @@ export const UNITS = [
     icon: '🃏',
     blurb: 'Rules, hand values, dealer rules and payouts. The table before the count.',
     lessons: [
-      { id: 'basics-flow', title: 'How a hand plays', blurb: 'From placing a bet to the dealer turning over the hole card.', type: 'stub', xp: 10 },
-      { id: 'basics-values', title: 'Hand values', blurb: 'Hard totals, soft totals and why the ace is special.', type: 'stub', xp: 10 },
-      { id: 'basics-dealer', title: 'H17 vs S17', blurb: 'Dealer rules, and why hitting soft 17 costs you money.', type: 'stub', xp: 10 },
-      { id: 'basics-payouts', title: 'Payouts', blurb: '3:2 versus 6:5 blackjack, insurance and even money.', type: 'stub', xp: 10 },
-      { id: 'basics-reality', title: 'Reality check', blurb: 'What counting can and cannot do for you. Short and honest.', type: 'reality', xp: 15 },
+      { id: 'basics-flow', title: 'How a hand plays', blurb: 'From placing a bet to the dealer turning over the hole card.', type: 'reading', xp: 10 },
+      { id: 'basics-values', title: 'Hand values', blurb: 'Hard totals, soft totals and why the ace is special.', type: 'reading', xp: 10 },
+      { id: 'basics-dealer', title: 'H17 vs S17', blurb: 'Dealer rules, and why hitting soft 17 costs you money.', type: 'reading', xp: 10 },
+      { id: 'basics-payouts', title: 'Payouts', blurb: '3:2 versus 6:5 blackjack, insurance and even money.', type: 'reading', xp: 10 },
+      { id: 'basics-reality', title: 'Reality check', blurb: 'What counting can and cannot do for you. Short and honest.', type: 'reading', xp: 15 },
     ],
   },
   {
@@ -235,9 +237,9 @@ export const UNITS = [
     icon: '🗂️',
     blurb: 'Eyeball the discard tray and know how many decks are left.',
     lessons: [
-      { id: 'decks-tray', title: 'Read the tray', blurb: 'Estimate decks played from the discard stack.', type: 'stub', xp: 15 },
-      { id: 'decks-remaining', title: 'Decks remaining', blurb: 'From decks played to decks left in the shoe.', type: 'stub', xp: 20 },
-      { id: 'decks-half', title: 'Half-deck precision', blurb: 'Estimate to the nearest half deck.', type: 'stub', xp: 25 },
+      { id: 'decks-tray', title: 'Read the tray', blurb: 'Estimate decks played from the discard stack, with deck marks to help.', type: 'deckEstimation', config: { count: 12, shoeDecks: 6, mode: 'played', precision: 0.5, reference: true }, xp: 15, goal: '12 trays to the nearest half deck' },
+      { id: 'decks-remaining', title: 'Decks remaining', blurb: 'No marks this time. From decks played to decks left in a 6-deck shoe.', type: 'deckEstimation', config: { count: 12, shoeDecks: 6, mode: 'remaining', precision: 0.5 }, xp: 20, goal: '12 trays, decks remaining to the nearest half deck' },
+      { id: 'decks-half', title: 'Half-deck precision', blurb: 'Any shoe size, against a clock.', type: 'deckEstimation', config: { count: 16, shoeDecks: 'random', mode: 'remaining', precision: 0.5, timed: true, baseSpeedMs: 4000, minSpeedMs: 1500 }, xp: 25, goal: '16 trays at 4 seconds each with 90% accuracy', passAccuracy: 0.9 },
     ],
   },
   {
@@ -248,9 +250,9 @@ export const UNITS = [
     blurb: 'Running count ÷ decks remaining. The number your bets and plays are based on.',
     requires: 'balanced',
     lessons: [
-      { id: 'tc-why', title: 'Why divide?', blurb: 'A +6 with one deck left is not the same as +6 with five.', type: 'stub', xp: 15 },
-      { id: 'tc-convert', title: 'Convert it', blurb: 'Running count and decks left in, true count out.', type: 'stub', xp: 20 },
-      { id: 'tc-speed', title: 'Convert at speed', blurb: 'Fast conversions, rounded the way counters round.', type: 'stub', xp: 25 },
+      { id: 'tc-why', title: 'Why divide?', blurb: 'A +6 with one deck left is not the same as +6 with five.', type: 'reading', xp: 15 },
+      { id: 'tc-convert', title: 'Convert it', blurb: 'Running count and decks left in, true count out.', type: 'trueCount', config: { count: 15 }, xp: 20, goal: '15 conversions with 80% accuracy' },
+      { id: 'tc-speed', title: 'Convert at speed', blurb: 'Fast conversions, rounded toward zero the way counters round.', type: 'trueCount', config: { count: 20, timed: true, baseSpeedMs: 3500, minSpeedMs: 1200 }, xp: 25, goal: '20 conversions at 3.5 seconds each with 90% accuracy', passAccuracy: 0.9 },
     ],
   },
   {
@@ -260,9 +262,9 @@ export const UNITS = [
     icon: '💰',
     blurb: 'Turn the true count into a bet, and understand bankroll and risk of ruin.',
     lessons: [
-      { id: 'bet-units', title: 'Betting units', blurb: 'Why bets are sized in units, not dollars.', type: 'stub', xp: 15 },
-      { id: 'bet-ramp', title: 'The bet ramp', blurb: 'Map each true count to a bet.', type: 'stub', xp: 20 },
-      { id: 'bet-ror', title: 'Risk of ruin', blurb: 'Bankroll, variance and how fast you can go broke.', type: 'stub', xp: 20 },
+      { id: 'bet-units', title: 'Betting units', blurb: 'Why bets are sized in units, not dollars.', type: 'reading', xp: 15 },
+      { id: 'bet-ramp', title: 'The bet ramp', blurb: 'Map each count to a bet from 1 to 8 units.', type: 'bet', config: { count: 15, decks: 6 }, xp: 20, goal: '15 bets with 80% accuracy' },
+      { id: 'bet-ror', title: 'Risk of ruin', blurb: 'Bankroll, variance and how fast you can go broke.', type: 'reading', xp: 20 },
     ],
   },
   {
@@ -273,11 +275,11 @@ export const UNITS = [
     blurb: 'The Illustrious 18 and Fab 4: when the count says to break basic strategy.',
     systems: ['hilo'],
     lessons: [
-      { id: 'dev-insurance', title: 'Insurance at +3', blurb: 'The single most valuable deviation.', type: 'stub', xp: 15 },
-      { id: 'dev-i18a', title: 'Illustrious 18, part 1', blurb: 'Stand and double indices.', type: 'stub', xp: 20 },
-      { id: 'dev-i18b', title: 'Illustrious 18, part 2', blurb: 'Negative indices and splits.', type: 'stub', xp: 20 },
-      { id: 'dev-fab4', title: 'Fab 4 surrenders', blurb: 'Four surrender indices worth learning.', type: 'stub', xp: 20 },
-      { id: 'dev-drill', title: 'Index drill', blurb: 'Hand, upcard, true count. What is the play?', type: 'stub', xp: 25 },
+      { id: 'dev-insurance', title: 'Insurance at +3', blurb: 'The single most valuable deviation.', type: 'reading', xp: 15 },
+      { id: 'dev-i18a', title: 'Illustrious 18, part 1', blurb: 'Stand, double and split indices at positive counts.', type: 'deviation', config: { set: 'i18a', count: 12 }, xp: 20, goal: '12 index plays with 80% accuracy' },
+      { id: 'dev-i18b', title: 'Illustrious 18, part 2', blurb: 'Negative indices: when to hit a stiff you would normally stand on.', type: 'deviation', config: { set: 'i18b', count: 10 }, xp: 20, goal: '10 index plays with 80% accuracy' },
+      { id: 'dev-fab4', title: 'Fab 4 surrenders', blurb: 'Four surrender indices worth learning.', type: 'deviation', config: { set: 'fab4', count: 8 }, xp: 20, goal: '8 index plays with 80% accuracy' },
+      { id: 'dev-drill', title: 'Index drill', blurb: 'All 22 plays, random counts, against a clock.', type: 'deviation', config: { set: 'mixed', count: 22, timed: true, baseSpeedMs: 5000, minSpeedMs: 1500 }, xp: 25, goal: '22 index plays at 5 seconds each with 90% accuracy', passAccuracy: 0.9 },
     ],
   },
   {
@@ -287,9 +289,9 @@ export const UNITS = [
     icon: '🎰',
     blurb: 'A realistic table with other players. Count, bet, play and get graded.',
     lessons: [
-      { id: 'table-solo', title: 'Heads up', blurb: 'Just you and the dealer, slow speed.', type: 'stub', xp: 30 },
-      { id: 'table-crowd', title: 'Crowded table', blurb: 'Five other players, cards everywhere.', type: 'stub', xp: 35 },
-      { id: 'table-shoe', title: 'Full shoe', blurb: 'Six decks, 75% penetration, graded on count, bets and plays.', type: 'stub', xp: 50 },
+      { id: 'table-solo', title: 'Heads up', blurb: 'Just you and the dealer, two decks, slow speed.', type: 'table', config: { decks: 2, penetration: 0.75, players: 0, rounds: 6, checkEvery: 2, baseSpeedMs: 1200, minSpeedMs: 350 }, xp: 30, goal: '6 rounds with 80% on counts, bets and plays' },
+      { id: 'table-crowd', title: 'Crowded table', blurb: 'Four other players, six decks, cards everywhere.', type: 'table', config: { decks: 6, penetration: 0.75, players: 4, rounds: 8, checkEvery: 2, baseSpeedMs: 900, minSpeedMs: 300 }, xp: 35, goal: '8 rounds with 80% on counts, bets and plays' },
+      { id: 'table-shoe', title: 'Full shoe', blurb: 'Six decks to the cut card, graded on count, bets and plays.', type: 'table', config: { decks: 6, penetration: 0.75, players: 5, rounds: 'shoe', checkEvery: 3, baseSpeedMs: 800, minSpeedMs: 250 }, xp: 50, goal: 'A whole shoe with every count check right' },
     ],
   },
   {
@@ -299,9 +301,10 @@ export const UNITS = [
     icon: '🕶️',
     blurb: 'Distractions, chatter, fast dealers, and how not to look like a counter.',
     lessons: [
-      { id: 'casino-noise', title: 'Distraction mode', blurb: 'Count through chatter and dealer talk.', type: 'stub', xp: 30 },
-      { id: 'casino-fast', title: 'Fast dealer', blurb: 'Real casino dealing speed.', type: 'stub', xp: 30 },
-      { id: 'casino-camo', title: 'Camouflage', blurb: 'Bet and act in ways that keep you at the table.', type: 'stub', xp: 20 },
+      { id: 'casino-noise', title: 'Distraction mode', blurb: 'Count through chatter, dealer talk and an uneven rhythm.', type: 'runningCount', config: { mode: 'flash', groups: 14, groupSize: [2, 4], checkpointEvery: 3, baseSpeedMs: 2200, minSpeedMs: 800, distract: true }, xp: 30, goal: '14 hands with chatter, 70% of checkpoints right', passAccuracy: 0.7 },
+      { id: 'casino-fast', title: 'Fast dealer', blurb: 'Real casino dealing speed: a hand every 1.3 seconds.', type: 'runningCount', config: { mode: 'flash', groups: 16, groupSize: [2, 4], checkpointEvery: 4, baseSpeedMs: 1300, minSpeedMs: 500 }, xp: 30, goal: '16 hands at 1.3 seconds each, 70% of checkpoints right', passAccuracy: 0.7 },
+      { id: 'casino-crowd-noise', title: 'Noisy full table', blurb: 'The full table simulator with chatter and interruptions.', type: 'table', config: { decks: 6, penetration: 0.7, players: 5, rounds: 8, checkEvery: 2, baseSpeedMs: 700, minSpeedMs: 250, distract: true }, xp: 40, goal: '8 noisy rounds with 80% on counts, bets and plays' },
+      { id: 'casino-camo', title: 'Camouflage', blurb: 'Bet and act in ways that keep you at the table.', type: 'reading', xp: 20 },
     ],
   },
 ];
@@ -344,7 +347,7 @@ export function lessonsForSystem(system) {
  * Lesson status for the path:
  *   'completed' | 'available' | 'locked' | 'soon' (stub) | 'skipped' (unit not in this track)
  */
-export function lessonStatus(lessonId, track, system) {
+export function lessonStatus(lessonId, track, system, unlockAll = false) {
   const unit = UNITS.find((u) => u.lessons.some((l) => l.id === lessonId));
   if (!unitAvailability(unit, system).available) return 'skipped';
   const lessons = lessonsForSystem(system);
@@ -353,6 +356,7 @@ export function lessonStatus(lessonId, track, system) {
   if (!isImplemented(lesson)) return 'soon';
   const skills = track?.skills || {};
   if (skills[lessonId]?.completions > 0) return 'completed';
+  if (unlockAll) return 'available';
   for (let i = 0; i < idx; i++) {
     const prev = lessons[i];
     if (isImplemented(prev) && !(skills[prev.id]?.completions > 0)) return 'locked';
@@ -361,8 +365,8 @@ export function lessonStatus(lessonId, track, system) {
 }
 
 /** The next lesson the user should take, or null when everything built is done. */
-export function nextLesson(track, system) {
-  return lessonsForSystem(system).find((l) => lessonStatus(l.id, track, system) === 'available') || null;
+export function nextLesson(track, system, unlockAll = false) {
+  return lessonsForSystem(system).find((l) => lessonStatus(l.id, track, system, unlockAll) === 'available') || null;
 }
 
 /** Progress summary for a unit: { done, total } over implemented lessons. */

@@ -232,7 +232,7 @@ export function applyResultToSkill(skill, lesson, result, now) {
     if (result.accuracy === 1) s.mastery = Math.min(MAX_MASTERY, s.mastery + 1);
     else if (s.mastery < 3) s.mastery += 1;
     // Best time only makes sense for drills, not reading lessons.
-    if (result.accuracy === 1 && result.durationMs && lesson.type !== 'reality') {
+    if (result.accuracy === 1 && result.durationMs && lesson.type !== 'reading') {
       s.bestTimeMs = s.bestTimeMs == null ? result.durationMs : Math.min(s.bestTimeMs, result.durationMs);
     }
   } else {

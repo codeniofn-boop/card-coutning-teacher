@@ -9,7 +9,9 @@ import StrategyDrill from './StrategyDrill.jsx';
 import CancellationDrill from './CancellationDrill.jsx';
 import { DEFAULT_RULES } from '../../game/basicStrategy.js';
 import RunningCountDrill from './RunningCountDrill.jsx';
-import RealityCheckLesson from './RealityCheckLesson.jsx';
+import ReadingLesson from './ReadingLesson.jsx';
+import TableSim from './TableSim.jsx';
+import { DeckEstimationDrill, TrueCountDrill, BetDrill, DeviationDrill } from './EstimationDrills.jsx';
 import StubLesson from './StubLesson.jsx';
 import Button from '../../components/Button.jsx';
 import Sheet from '../../components/Sheet.jsx';
@@ -19,7 +21,12 @@ const DRILLS = {
   cardValues: CardValuesDrill,
   runningCount: RunningCountDrill,
   cancellation: CancellationDrill,
-  reality: RealityCheckLesson,
+  reading: ReadingLesson,
+  deckEstimation: DeckEstimationDrill,
+  trueCount: TrueCountDrill,
+  bet: BetDrill,
+  deviation: DeviationDrill,
+  table: TableSim,
 };
 
 /**
@@ -32,7 +39,7 @@ export default function LessonRunner({ lessonId, review }) {
   const lesson = getLesson(lessonId);
   const unit = lesson ? getUnit(lesson.unitId) : null;
   const skill = track.skills[lessonId];
-  const usesHearts = !review && lesson?.type !== 'reality';
+  const usesHearts = !review && lesson?.type !== 'reading';
 
   const [phase, setPhase] = useState(() => (usesHearts && hearts.count <= 0 ? 'outOfHearts' : 'intro'));
   const [speedMs, setSpeedMs] = useState(() => (lesson ? effectiveSpeedMs(lesson, skill, state.settings.speedMultiplier) : null));

@@ -52,6 +52,20 @@ export const BADGES = [
     check: ({ lesson, result }) => lesson.id === 'cancel-speed' && result.passed,
   },
   {
+    id: 'index-card',
+    name: 'Index card',
+    icon: '🧠',
+    description: 'Pass the Index drill with 90% accuracy or better.',
+    check: ({ lesson, result }) => lesson.id === 'dev-drill' && result.passed,
+  },
+  {
+    id: 'house-guest',
+    name: 'House guest',
+    icon: '🎰',
+    description: 'Finish a full-table session in profit with every bet by the ramp.',
+    check: ({ lesson, result }) => lesson.type === 'table' && result.netUnits > 0 && result.betAccuracy === 1,
+  },
+  {
     id: 'running-start',
     name: 'Running start',
     icon: '🧮',
@@ -98,8 +112,8 @@ export const BADGES = [
     id: 'full-shoe',
     name: 'Shoe counted',
     icon: '👞',
-    description: 'Count a full 6-deck shoe without error. (Unit 10)',
-    check: () => false,
+    description: 'Count a full 6-deck shoe without a single count-check error.',
+    check: ({ lesson, result }) => lesson.id === 'table-shoe' && result.countAccuracy === 1 && result.rounds >= 6,
   },
 ];
 

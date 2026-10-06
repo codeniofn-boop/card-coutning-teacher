@@ -114,6 +114,13 @@ export default function Profile() {
             className="h-6 w-6 accent-brand-500"
           />
         </label>
+        <label className="mt-4 flex items-center justify-between gap-3">
+          <span>
+            <span className="block text-sm font-bold">Unlock every lesson</span>
+            <span className="block text-xs font-semibold text-ink-500">Skip the path order and try anything. Progress still counts.</span>
+          </span>
+          <input type="checkbox" checked={!!state.settings.unlockAll} onChange={(e) => dispatch({ type: 'setUnlockAll', value: e.target.checked })} className="h-6 w-6 accent-brand-500" />
+        </label>
         <div className="mt-4">
           {confirmReset ? (
             <div className="flex gap-2">

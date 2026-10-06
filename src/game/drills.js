@@ -6,6 +6,8 @@
  * screens stay thin.
  */
 import { buildShoe, drawCards } from './shoe.js';
+import { ILLUSTRIOUS_18, FAB_4, deviationApplies } from './deviations.js';
+import { DEFAULT_RAMP, keyCount, recommendedBet } from './betting.js';
 import { makeCard, RANKS, SUITS, handValue, isTenValue } from './cards.js';
 import { ACTION_LABELS, DEFAULT_RULES, basicStrategyAction, strategyCode } from './basicStrategy.js';
 import { cardValue, runningCount, runningCountTrail, distinctValues, hasHalfValues, roundCount } from './countingSystems.js';
@@ -305,4 +307,154 @@ export function cancellingPairs(system, cards) {
     }
   }
   return out;
+}
+
+// ---------------------------------------------------------------- Unit 6: deck estimation
+
+/**
+ * Deck estimation: a discard tray holding `cardsInTray` cards out of a shoe of
+ * `shoeDecks`. The learner answers in half decks.
+ *   mode 'played'    → decks in the tray
+ *   mode 'remaining' → decks left in the shoe
+ *   precision        answer granularity in decks (0.5 by default)
+ */
+export function generateDeckEstimationDrill({ count = 12, shoeDecks = 6, mode = 'played', precision = 0.5, rng = Math.random }) {
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    const decks = shoeDecks === 'random' ? [1, 2, 4, 6, 8][Math.floor(rng() * 5)] : shoeDecks;
+    // Between a quarter deck and the penetration limit, in random (not pre-rounded) amounts.
+    const maxPlayed = decks * 52 * 0.85;
+    const cardsInTray = Math.max(8, Math.round(13 + rng() * (maxPlayed - 13)));
+    const played = cardsInTray / 52;
+    const remaining = decks - played;
+    const exact = mode === 'played' ? played : remaining;
+    const answer = Math.max(precision, Math.round(exact / precision) * precision);
+    const choices = estimateChoices(answer, precision, decks, rng);
+    items.push({ cardsInTray, shoeDecks: decks, exact, answer, choices, mode });
+  }
+  return { items };
+}
+
+function estimateChoices(answer, step, maxDecks, rng) {
+  const picks = new Set([answer]);
+  let guard = 0;
+  while (picks.size < 5 && guard++ < 100) {
+    const off = (1 + Math.floor(rng() * 3)) * step * (rng() < 0.5 ? -1 : 1);
+    const v = Math.round((answer + off) / step) * step;
+    if (v >= step && v <= maxDecks) picks.add(v);
+  }
+  return [...picks].sort((a, b) => a - b);
+}
+
+// ---------------------------------------------------------------- Unit 7: true count
+
+/**
+ * True count conversion: running count ÷ decks remaining, truncated toward zero.
+ * Items: { rc, decksLeft, tc, choices }.
+ */
+export function truncateTowardZero(x) {
+  return x < 0 ? Math.ceil(x) : Math.floor(x);
+}
+
+export function generateTrueCountDrill({ count = 15, rng = Math.random, maxDecks = 6 }) {
+  const items = [];
+  const deckOptions = [];
+  for (let d = 0.5; d <= maxDecks; d += 0.5) deckOptions.push(d);
+  for (let i = 0; i < count; i++) {
+    const decksLeft = deckOptions[Math.floor(rng() * deckOptions.length)];
+    const rc = Math.round((rng() * 2 - 1) * Math.max(4, decksLeft * 5));
+    const tc = truncateTowardZero(rc / decksLeft);
+    const picks = new Set([tc]);
+    let guard = 0;
+    while (picks.size < 5 && guard++ < 50) picks.add(tc + (Math.floor(rng() * 7) - 3));
+    items.push({ rc, decksLeft, tc, choices: [...picks].sort((a, b) => a - b) });
+  }
+  return { items };
+}
+
+// ---------------------------------------------------------------- Unit 8: bet ramp
+
+
+/**
+ * Bet sizing: given a count, pick the ramp's bet in units.
+ * Balanced systems see a true count; unbalanced ones see a running count with
+ * the key count and pivot for reference.
+ */
+export function generateBetDrill({ system, count = 15, decks = 6, rng = Math.random }) {
+  const items = [];
+  const key = system.balanced ? null : keyCount(system, decks);
+  const pivot = system.pivot ?? 0;
+  for (let i = 0; i < count; i++) {
+    let item;
+    if (system.balanced) {
+      const tc = Math.floor(rng() * 10) - 3; // −3 … +6
+      item = { trueCount: tc, correct: recommendedBet(system, { trueCount: tc }) };
+    } else {
+      const span = Math.max(4, pivot - key);
+      const rc = key - span + Math.floor(rng() * (3 * span));
+      item = { runningCount: rc, keyCount: key, pivot, decks, correct: recommendedBet(system, { runningCount: rc, decks }) };
+    }
+    item.choices = [...new Set(DEFAULT_RAMP.map((r) => r.units))].sort((a, b) => a - b);
+    items.push(item);
+  }
+  return { items };
+}
+
+// ---------------------------------------------------------------- Unit 9: deviations
+
+
+const DEVIATION_SETS = {
+  insurance: ILLUSTRIOUS_18.filter((d) => d.id === 'ins'),
+  i18a: ILLUSTRIOUS_18.filter((d) => d.when === 'atOrAbove' && d.id !== 'ins'),
+  i18b: ILLUSTRIOUS_18.filter((d) => d.when === 'below'),
+  fab4: FAB_4,
+  mixed: [...ILLUSTRIOUS_18, ...FAB_4],
+};
+
+/** Build concrete cards for a deviation hand such as '16', '10,10' or 'Insurance'. */
+export function cardsForDeviationHand(hand, rng = Math.random) {
+  if (hand === 'Insurance') {
+    const r = ['7', '8', '9', '10', 'K', '6', '5'][Math.floor(rng() * 7)];
+    const r2 = ['2', '3', '4', '9', 'Q', 'J'][Math.floor(rng() * 6)];
+    return [makeCard(r, 'S'), makeCard(r2, 'H')];
+  }
+  if (hand === '10,10') return [makeCard(['10', 'J', 'Q', 'K'][Math.floor(rng() * 4)], 'S'), makeCard(['10', 'J', 'Q', 'K'][Math.floor(rng() * 4)], 'H')];
+  const total = Number(hand);
+  const options = [];
+  for (let a = 2; a <= 10; a++) {
+    const b = total - a;
+    if (b >= 2 && b <= 10 && a !== b) options.push([a, b]);
+  }
+  const [a, b] = options[Math.floor(rng() * options.length)];
+  const rank = (v) => (v === 10 ? ['10', 'J', 'Q', 'K'][Math.floor(rng() * 4)] : String(v));
+  return [makeCard(rank(a), 'S'), makeCard(rank(b), 'H')];
+}
+
+/**
+ * Index-play drill: a hand, an upcard and a true count near the index.
+ * Items: { deviation, cards, dealer, trueCount, correct, options: [action, fallback] }.
+ */
+export function generateDeviationDrill({ set = 'mixed', count = 12, rng = Math.random }) {
+  const pool = DEVIATION_SETS[set] || DEVIATION_SETS.mixed;
+  const items = [];
+  for (let i = 0; i < count; i++) {
+    const dev = pool[i % pool.length];
+    const offset = Math.floor(rng() * 5) - 2; // −2 … +2 around the index
+    const trueCount = dev.index + offset;
+    const correct = deviationApplies(dev, trueCount) ? dev.action : dev.fallback;
+    items.push({
+      deviation: dev,
+      cards: cardsForDeviationHand(dev.hand, rng),
+      dealer: makeCard(dev.upcard, ['S', 'H', 'D', 'C'][Math.floor(rng() * 4)]),
+      trueCount,
+      correct,
+      options: rng() < 0.5 ? [dev.action, dev.fallback] : [dev.fallback, dev.action],
+    });
+  }
+  // Shuffle so the same deviation does not repeat back to back when the pool is small.
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+  return { items };
 }

@@ -152,15 +152,19 @@ function FlashCount({ lesson, system, speedMs, onMistake, onFinish, onProgress }
     return () => clearTimeout(t);
   }, [phase, countdown]);
 
-  // Auto-advance through groups; pause at checkpoints.
+  // Auto-advance through groups; pause at checkpoints. Distraction mode adds
+  // timing jitter and random table chatter.
+  const [chatter, setChatter] = useState(null);
   useEffect(() => {
     if (phase !== 'flash') return undefined;
+    const jitter = cfg.distract ? 0.55 + Math.random() * 0.9 : 1;
+    if (cfg.distract) setChatter(Math.random() < 0.45 ? CHATTER[Math.floor(Math.random() * CHATTER.length)] : null);
     const t = setTimeout(() => {
       if (drill.checkpoints.includes(groupIndex)) setPhase('checkpoint');
       else setGroupIndex((g) => g + 1);
-    }, speedMs);
+    }, Math.round(speedMs * jitter));
     return () => clearTimeout(t);
-  }, [phase, groupIndex, speedMs, drill]);
+  }, [phase, groupIndex, speedMs, drill, cfg.distract]);
 
   const finish = () => {
     const r = checkpoints.current;
@@ -257,13 +261,31 @@ function FlashCount({ lesson, system, speedMs, onMistake, onFinish, onProgress }
       <div className="mt-3 text-xs font-black uppercase tracking-wider text-ink-500">
         {groupIndex + 1} of {total}
       </div>
-      <div className="my-auto py-6">
+      <div className="relative my-auto py-6">
         <CardGroup key={groupIndex} cards={drill.groups[groupIndex]} />
+        {chatter && (
+          <div key={chatter + groupIndex} className="pointer-events-none absolute -top-2 left-1/2 w-56 -translate-x-1/2 animate-rise rounded-2xl bg-ink-900 px-3 py-2 text-center text-sm font-bold text-white shadow-lg">
+            {chatter}
+          </div>
+        )}
       </div>
-      <p className="mb-6 text-sm font-bold text-ink-300">Keep the count in your head.</p>
+      <p className="mb-6 text-sm font-bold text-ink-300">{cfg.distract ? 'Ignore the noise. Keep the count.' : 'Keep the count in your head.'}</p>
     </div>
   );
 }
+
+const CHATTER = [
+  'Dealer: “Good luck, everyone!”',
+  'Player: “Hit me… no, stand!”',
+  '“Cocktails?”',
+  'Dealer: “Insurance, anyone?”',
+  'Player: “That was MY ten!”',
+  'A pit boss wanders over.',
+  'Your phone buzzes.',
+  'Dealer: “Nice hand, sir.”',
+  'Someone drops a chip.',
+  'Dealer: “Checks play!”',
+];
 
 // ---------------------------------------------------------------- deck countdown
 

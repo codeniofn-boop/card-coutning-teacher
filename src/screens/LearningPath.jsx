@@ -24,10 +24,11 @@ const UNIT_COLORS = [
 ];
 
 export default function LearningPath() {
-  const { system, track, hearts, navigate } = useStore();
+  const { state, system, track, hearts, navigate } = useStore();
+  const unlockAll = !!state.settings.unlockAll;
   const [selected, setSelected] = useState(null);
   const now = Date.now();
-  const next = nextLesson(track, system);
+  const next = nextLesson(track, system, unlockAll);
   let nodeIndex = 0;
 
   return (
@@ -41,7 +42,7 @@ export default function LearningPath() {
             <UnitHeader unit={unit} color={color} avail={avail} prog={prog} />
             <div className="flex flex-col items-center gap-6 py-6">
               {unit.lessons.map((lesson) => {
-                const status = avail.available ? lessonStatus(lesson.id, track, system) : 'skipped';
+                const status = avail.available ? lessonStatus(lesson.id, track, system, unlockAll) : 'skipped';
                 const offset = OFFSETS[nodeIndex++ % OFFSETS.length];
                 const skill = track.skills[lesson.id];
                 const review = status === 'completed' && needsReview(skill, now);
@@ -69,6 +70,7 @@ export default function LearningPath() {
         selection={selected}
         onClose={() => setSelected(null)}
         hearts={hearts}
+        unlockAll={unlockAll}
         skill={selected ? track.skills[selected.lesson.id] : null}
         onStart={(review) => {
           navigate('lesson', { lessonId: selected.lesson.id, review, nonce: Date.now() });
@@ -144,7 +146,7 @@ function PathNode({ lesson, unit, status, review, isNext, offset, mastery, color
   );
 }
 
-function LessonSheet({ selection, onClose, hearts, skill, onStart, onReview }) {
+function LessonSheet({ selection, onClose, hearts, skill, onStart, onReview, unlockAll }) {
   if (!selection) return <Sheet open={false} />;
   const { lesson, unit, status, review } = selection;
   const now = Date.now();
@@ -201,7 +203,7 @@ function LessonSheet({ selection, onClose, hearts, skill, onStart, onReview }) {
             </Button>
           </>
         )}
-        {status === 'completed' && (
+        {(status === 'completed' || (unlockAll && status === 'available')) && (
           <Button full variant="secondary" onClick={() => onStart(true)}>
             Quick practice · no hearts · +{Math.floor(lesson.xp / 2)} XP
           </Button>

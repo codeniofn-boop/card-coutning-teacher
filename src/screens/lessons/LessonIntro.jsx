@@ -1,12 +1,15 @@
 import Button from '../../components/Button.jsx';
 import ValueChart from '../../components/ValueChart.jsx';
 import StrategyChart from '../../components/StrategyChart.jsx';
+import { ILLUSTRIOUS_18, FAB_4 } from '../../game/deviations.js';
+import { DEFAULT_RAMP } from '../../game/betting.js';
+import { formatCount } from '../../game/countingSystems.js';
 
 /** Pre-drill screen: what the lesson is, the goal, the values to remember and the speed slider. */
 export default function LessonIntro({ lesson, unit, system, review, rules, speedMs, onSpeedChange, onStart, onQuit }) {
   const cfg = lesson.config || {};
   const timed = !!cfg.baseSpeedMs;
-  const per = lesson.type === 'strategy' || lesson.type === 'cancellation' ? 'per hand' : cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
+  const per = lesson.type === 'table' ? 'per card' : ['strategy', 'cancellation', 'deviation', 'bet', 'trueCount', 'deckEstimation'].includes(lesson.type) ? 'per question' : cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
   const min = cfg.minSpeedMs ?? Math.round((cfg.baseSpeedMs || 1000) / 3);
   const max = Math.round((cfg.baseSpeedMs || 1000) * 1.5);
 
@@ -51,6 +54,47 @@ export default function LessonIntro({ lesson, unit, system, review, rules, speed
               ? 'Late surrender: give up half your bet on hard 15 vs 10, hard 16 vs 9, 10 or A (and a few more under H17). Everything else, play on.'
               : 'Double after split is allowed. Change the dealer rule in Profile → Settings.'}
           </p>
+        </div>
+      )}
+
+      {lesson.type === 'deviation' && (
+        <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm">
+          <h2 className="mb-2 text-sm font-black uppercase tracking-wide text-ink-500">Index numbers (Hi-Lo, true count)</h2>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs font-bold">
+            {[...(cfg.set === 'fab4' ? FAB_4 : cfg.set === 'i18b' ? ILLUSTRIOUS_18.filter((d) => d.when === 'below') : cfg.set === 'i18a' ? ILLUSTRIOUS_18.filter((d) => d.when === 'atOrAbove' && d.id !== 'ins') : [...ILLUSTRIOUS_18, ...FAB_4])].map((d) => (
+              <div key={d.id} className="flex justify-between border-b border-ink-100 py-0.5">
+                <span>
+                  {d.hand} v {d.upcard}
+                </span>
+                <span className="text-ink-500">
+                  {d.action} {d.when === 'atOrAbove' ? '≥' : '<'} {formatCount(d.index)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {(lesson.type === 'bet' || lesson.type === 'table') && (
+        <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm">
+          <h2 className="mb-2 text-sm font-black uppercase tracking-wide text-ink-500">Bet ramp (1–8 units)</h2>
+          <div className="flex flex-wrap gap-2 text-xs font-black">
+            {DEFAULT_RAMP.map((r, i) => (
+              <span key={i} className="rounded-xl bg-paper px-3 py-1.5">
+                {i === 0 ? '≤ +1' : `${formatCount(r.tc)}${i === DEFAULT_RAMP.length - 1 ? '+' : ''}`} → {r.units}u
+              </span>
+            ))}
+          </div>
+          {!system.balanced && <p className="mt-2 text-xs font-semibold text-ink-500">{system.shortName || system.name} is unbalanced: the key count stands in for a true +1 and the pivot for +4, so you bet straight from the running count.</p>}
+        </div>
+      )}
+      {lesson.type === 'deckEstimation' && (
+        <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm text-sm font-semibold text-ink-700">
+          A deck is about 1.6 cm (⅝ inch) thick. Learn what one, two and three decks look like in the tray and the rest is interpolation. Answers are to the nearest half deck.
+        </div>
+      )}
+      {lesson.type === 'trueCount' && (
+        <div className="mt-5 rounded-3xl bg-white p-4 shadow-sm text-sm font-semibold text-ink-700">
+          True count = running count ÷ decks remaining, rounded toward zero. +7 with 2½ decks left is 2.8 → +2. −5 with 1½ decks left is −3.3 → −3.
         </div>
       )}
 

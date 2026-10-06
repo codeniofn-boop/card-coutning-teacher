@@ -15,18 +15,23 @@ Single-page React 19 + Tailwind 4 app built with Vite. All state lives in memory
 
 ## What works today
 
-- **Onboarding**: pick one of eight counting systems (Hi-Lo recommended), with a comparison screen.
-- **Learning path**: 11 units with snake-style nodes. Lessons unlock in order; mastered skills decay over time and show as "needs review".
-- **Unit 1 · Reality check**: an honest, short lesson on legality, edge size, variance and bankroll.
-- **Unit 2 · Basic strategy**: hand-plus-upcard drills for hard totals, soft totals, pairs and surrender, plus a timed mixed sprint, with colour-coded charts and an S17/H17 toggle.
-- **Unit 5 · Cancellation**: see a pair as one number, strike out cancelling cards in a hand and net the rest, then a timed sprint.
-- **Unit 3 · Card values**: flashcards (untimed, timed, lightning).
-- **Unit 4 · Running count**: count-along with multiple choice, auto-flashing singles, pairs and full hands with checkpoints, and a timed deck countdown.
-- **Gamification**: XP with level titles, daily streak with automatic streak freezes, hearts lost on mistakes (regenerate every 30 minutes or refill via a review session), badges, adaptive drill speed, per-skill accuracy and best-time stats.
-- **Feedback**: every completion screen lists exactly which card or checkpoint went wrong, what was entered versus what was correct, and can replay the full card sequence with the running count under each group.
-- **Review**: a spaced-repetition tab that surfaces the weakest practised skills.
+Every unit on the path is playable. Lessons unlock in order; the "Unlock every lesson" switch in Profile lets you jump anywhere and practise without hearts.
 
-Everything else on the path (deck estimation, true count, bet spreading, deviations, full table, casino conditions) is stubbed with a "coming soon" preview so the structure is visible. Stub lessons never block the path.
+- **Onboarding** picks one of eight counting systems (Hi-Lo recommended) with a comparison screen.
+- **Unit 1 · Blackjack basics**: five short reading lessons with quick checks, including the honest Reality check.
+- **Unit 2 · Basic strategy**: hand-plus-upcard drills for hard totals, soft totals, pairs and surrender, plus a timed sprint, with colour-coded charts and an S17/H17 toggle.
+- **Unit 3 · Card values**: flashcards (untimed, timed, lightning).
+- **Unit 4 · Running count**: count-along, auto-flashing singles, pairs and hands with checkpoints, and a timed deck countdown.
+- **Unit 5 · Cancellation**: pairs as one number, strike out cancelling cards, timed sprint.
+- **Unit 6 · Deck estimation**: a CSS discard tray; estimate decks played and remaining to the nearest half deck.
+- **Unit 7 · True count** (balanced systems only): why divide, conversions, timed conversions.
+- **Unit 8 · Bet spreading**: units, a 1–8 ramp drill (running-count based for KO and Red Seven), and an interactive risk-of-ruin page.
+- **Unit 9 · Playing deviations** (Hi-Lo): insurance at +3, Illustrious 18 in two parts, Fab 4, and a timed index drill.
+- **Unit 10 · Full table**: a simulator with configurable decks, penetration, other players and speed. You bet, play and keep the count; every bet, play and count check is graded and shown alongside the book answer.
+- **Unit 11 · Casino conditions**: distraction mode with chatter and uneven rhythm, a fast dealer, a noisy full table, and camouflage tips.
+- **Gamification**: XP and levels, daily streak with automatic streak freezes, hearts (regenerate every 30 minutes or refill via review), 15 badges, adaptive drill speed, per-skill accuracy and best-time stats.
+- **Feedback**: completion screens list exactly which card, hand or checkpoint went wrong, what was entered versus what was correct, and can replay the full card sequence.
+- **Review**: a spaced-repetition tab that surfaces the weakest practised skills.
 
 ## Project layout
 
@@ -38,11 +43,14 @@ src/
     countingSystems.js  all 8 systems (values, balance, BC/PE/IC, IRC)
     basicStrategy.js    multi-deck S17/H17 strategy tables
     deviations.js       Illustrious 18 and Fab 4 indices for Hi-Lo
-    drills.js           drill generators and graders
+    drills.js           drill generators and graders for every unit
+    betting.js          bet ramp, unbalanced key counts, risk of ruin
+    table.js            blackjack engine for the full-table simulator
   learning/
     units.js            the learning path: units, lessons, unlock rules
     progress.js         XP, levels, streaks, hearts, mastery decay, speed ramp
     badges.js           achievements
+    readings.js         text content for the reading lessons
   state/store.jsx       reducer + React context, all in memory
   components/           playing card (CSS/SVG), buttons, keypad, confetti, …
   screens/              onboarding, path, systems, review, profile
