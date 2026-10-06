@@ -102,6 +102,18 @@ export default function Profile() {
           </div>
         </label>
         <p className="mt-2 text-xs font-semibold text-ink-500">Each timed drill also ramps its own speed up after accurate runs and down after rough ones.</p>
+        <label className="mt-4 flex items-center justify-between gap-3">
+          <span>
+            <span className="block text-sm font-bold">Dealer hits soft 17 (H17)</span>
+            <span className="block text-xs font-semibold text-ink-500">Changes a handful of basic strategy plays. Off means S17.</span>
+          </span>
+          <input
+            type="checkbox"
+            checked={!!state.settings.dealerHitsSoft17}
+            onChange={(e) => dispatch({ type: 'setDealerHitsSoft17', value: e.target.checked })}
+            className="h-6 w-6 accent-brand-500"
+          />
+        </label>
         <div className="mt-4">
           {confirmReset ? (
             <div className="flex gap-2">

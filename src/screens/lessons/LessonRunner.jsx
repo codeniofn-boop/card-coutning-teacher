@@ -1,10 +1,12 @@
-import { useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useStore } from '../../state/store.jsx';
 import { getLesson, getUnit } from '../../learning/units.js';
 import { DEFAULT_PASS_ACCURACY, effectiveSpeedMs, msUntilNextHeart } from '../../learning/progress.js';
 import LessonIntro from './LessonIntro.jsx';
 import DrillHeader from './DrillHeader.jsx';
 import CardValuesDrill from './CardValuesDrill.jsx';
+import StrategyDrill from './StrategyDrill.jsx';
+import { DEFAULT_RULES } from '../../game/basicStrategy.js';
 import RunningCountDrill from './RunningCountDrill.jsx';
 import RealityCheckLesson from './RealityCheckLesson.jsx';
 import StubLesson from './StubLesson.jsx';
@@ -12,6 +14,7 @@ import Button from '../../components/Button.jsx';
 import Sheet from '../../components/Sheet.jsx';
 
 const DRILLS = {
+  strategy: StrategyDrill,
   cardValues: CardValuesDrill,
   runningCount: RunningCountDrill,
   reality: RealityCheckLesson,
@@ -36,6 +39,7 @@ export default function LessonRunner({ lessonId, review }) {
   const [heartsLeft, setHeartsLeft] = useState(hearts.count);
   const heartsRef = useRef(hearts.count);
   const startedAt = useRef(0);
+  const rules = useMemo(() => ({ ...DEFAULT_RULES, dealerHitsSoft17: !!state.settings.dealerHitsSoft17 }), [state.settings.dealerHitsSoft17]);
 
   if (!lesson) {
     return (
@@ -99,6 +103,7 @@ export default function LessonRunner({ lessonId, review }) {
         unit={unit}
         system={system}
         review={review}
+        rules={rules}
         speedMs={speedMs}
         onSpeedChange={changeSpeed}
         onStart={() => {
@@ -113,7 +118,7 @@ export default function LessonRunner({ lessonId, review }) {
   return (
     <div className="mx-auto flex min-h-full max-w-md flex-col px-4 pb-safe pt-3">
       <DrillHeader progress={progress} hearts={usesHearts ? heartsLeft : null} review={review} onQuit={() => setConfirmQuit(true)} />
-      <Drill lesson={lesson} system={system} speedMs={speedMs} onMistake={onMistake} onFinish={onFinish} onProgress={setProgress} />
+      <Drill lesson={lesson} system={system} rules={rules} speedMs={speedMs} onMistake={onMistake} onFinish={onFinish} onProgress={setProgress} />
       <Sheet open={confirmQuit} onClose={() => setConfirmQuit(false)} title="Quit this lesson?">
         <p className="font-semibold text-ink-500">Progress in this lesson will be lost.</p>
         <div className="mt-4 flex flex-col gap-2">

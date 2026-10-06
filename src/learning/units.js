@@ -6,6 +6,7 @@
  *   title     short name shown on the path node
  *   blurb     one-line description shown in the lesson sheet
  *   type      which drill runs it:
+ *               'strategy'      Unit 2 basic strategy hands
  *               'cardValues'    Unit 3 flashcards
  *               'runningCount'  Unit 4 drills (see config.mode)
  *               'reality'       the short honest-framing lesson
@@ -46,11 +47,52 @@ export const UNITS = [
     icon: '📋',
     blurb: 'The mathematically best play for every hand. Counting is built on top of this.',
     lessons: [
-      { id: 'strategy-hard', title: 'Hard totals', blurb: 'Hit, stand or double with no ace in play.', type: 'stub', xp: 15 },
-      { id: 'strategy-soft', title: 'Soft totals', blurb: 'Hands with an ace counted as 11.', type: 'stub', xp: 15 },
-      { id: 'strategy-pairs', title: 'Pairs', blurb: 'When to split and when to leave them alone.', type: 'stub', xp: 15 },
-      { id: 'strategy-surrender', title: 'Surrender', blurb: 'Giving up half a bet is sometimes the best play.', type: 'stub', xp: 15 },
-      { id: 'strategy-mixed', title: 'Strategy sprint', blurb: 'Random hands against a clock.', type: 'stub', xp: 20 },
+      {
+        id: 'strategy-hard',
+        title: 'Hard totals',
+        blurb: 'Hit, stand or double with no ace in play.',
+        type: 'strategy',
+        config: { category: 'hard', count: 15 },
+        xp: 15,
+        goal: '15 hard hands with 80% accuracy',
+      },
+      {
+        id: 'strategy-soft',
+        title: 'Soft totals',
+        blurb: 'Hands with an ace counted as 11.',
+        type: 'strategy',
+        config: { category: 'soft', count: 15 },
+        xp: 15,
+        goal: '15 soft hands with 80% accuracy',
+      },
+      {
+        id: 'strategy-pairs',
+        title: 'Pairs',
+        blurb: 'When to split and when to leave them alone.',
+        type: 'strategy',
+        config: { category: 'pairs', count: 15 },
+        xp: 15,
+        goal: '15 pairs with 80% accuracy',
+      },
+      {
+        id: 'strategy-surrender',
+        title: 'Surrender',
+        blurb: 'Giving up half a bet is sometimes the best play.',
+        type: 'strategy',
+        config: { category: 'surrender', count: 12 },
+        xp: 15,
+        goal: '12 stiff hands with 80% accuracy',
+      },
+      {
+        id: 'strategy-mixed',
+        title: 'Strategy sprint',
+        blurb: 'Random hands against a clock.',
+        type: 'strategy',
+        config: { category: 'mixed', count: 25, timed: true, baseSpeedMs: 5000, minSpeedMs: 1500 },
+        xp: 25,
+        goal: '25 mixed hands at 5 seconds each with 90% accuracy',
+        passAccuracy: 0.9,
+      },
     ],
   },
   {

@@ -6,6 +6,8 @@
  * screens stay thin.
  */
 import { buildShoe, drawCards } from './shoe.js';
+import { makeCard, RANKS, SUITS, handValue, isTenValue } from './cards.js';
+import { ACTION_LABELS, DEFAULT_RULES, basicStrategyAction, strategyCode } from './basicStrategy.js';
 import { cardValue, runningCountTrail, distinctValues, hasHalfValues, roundCount } from './countingSystems.js';
 
 /**
@@ -119,4 +121,114 @@ export function summarize(results) {
   const total = results.length;
   const correct = results.filter((r) => r.correct).length;
   return { total, correct, accuracy: total === 0 ? 0 : correct / total, mistakes: results.filter((r) => !r.correct) };
+}
+
+// ---------------------------------------------------------------- Unit 2: basic strategy
+
+
+const SMALL = ['2', '3', '4', '5', '6', '7', '8', '9'];
+const TENS = ['10', 'J', 'Q', 'K'];
+/** Dealer upcards weighted like a real shoe: four ten-value ranks, one of everything else. */
+const UPCARD_POOL = [...SMALL, ...TENS, 'A'];
+
+function pick(arr, rng) {
+  return arr[Math.floor(rng() * arr.length)];
+}
+
+function twoSuits(rng) {
+  const a = pick(SUITS, rng);
+  let b = pick(SUITS, rng);
+  while (b === a) b = pick(SUITS, rng);
+  return [a, b];
+}
+
+/** A random hard hand (no ace, not a pair) with the given total. */
+function hardHand(total, rng) {
+  const options = [];
+  for (const r1 of [...SMALL, ...TENS]) {
+    for (const r2 of [...SMALL, ...TENS]) {
+      const v1 = isTenValue(r1) ? 10 : Number(r1);
+      const v2 = isTenValue(r2) ? 10 : Number(r2);
+      if (v1 + v2 === total && v1 !== v2) options.push([r1, r2]);
+    }
+  }
+  const [r1, r2] = pick(options, rng);
+  const [s1, s2] = twoSuits(rng);
+  return [makeCard(r1, s1), makeCard(r2, s2)];
+}
+
+/**
+ * Generate one strategy question for a category:
+ *   'hard'      two-card hard totals 5–17 (decision-heavy 9–16 weighted)
+ *   'soft'      A + 2..9
+ *   'pairs'     any pair
+ *   'surrender' stiff hands against strong upcards, plus look-alikes that should not surrender
+ *   'mixed'     any of the above
+ */
+export function generateStrategyHand(category, rng = Math.random) {
+  let cat = category;
+  if (cat === 'mixed') cat = pick(['hard', 'hard', 'soft', 'pairs', 'surrender'], rng);
+  let cards;
+  let dealer;
+  if (cat === 'hard') {
+    const total = pick([5, 7, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13, 14, 15, 15, 16, 16, 17], rng);
+    cards = hardHand(total, rng);
+    dealer = pick(UPCARD_POOL, rng);
+  } else if (cat === 'soft') {
+    const [s1, s2] = twoSuits(rng);
+    cards = [makeCard('A', s1), makeCard(pick(SMALL, rng), s2)];
+    dealer = pick(UPCARD_POOL, rng);
+  } else if (cat === 'pairs') {
+    const rank = pick(RANKS, rng);
+    const [s1, s2] = twoSuits(rng);
+    cards = [makeCard(rank, s1), makeCard(rank, s2)];
+    dealer = pick(UPCARD_POOL, rng);
+  } else {
+    const total = pick([14, 15, 15, 16, 16, 17, 13], rng);
+    cards = hardHand(total, rng);
+    dealer = pick(['8', '9', '9', '10', 'J', 'Q', 'K', 'A', 'A'], rng);
+  }
+  return { cards, dealer };
+}
+
+/** Human label such as "Hard 16", "Soft 18" or "Pair of 8s". */
+export function describeHand(cards) {
+  if (cards.length === 2 && pairKey(cards[0]) === pairKey(cards[1])) {
+    const r = isTenValue(cards[0].rank) ? '10' : cards[0].rank;
+    return `Pair of ${r === 'A' ? 'aces' : `${r}s`}`;
+  }
+  const { total, soft } = handValue(cards);
+  return `${soft ? 'Soft' : 'Hard'} ${total}`;
+}
+
+function pairKey(card) {
+  return isTenValue(card.rank) ? '10' : card.rank;
+}
+
+/**
+ * Unit 2 drill: `count` hands with the correct action under `rules`.
+ * Each item: { cards, dealer (card), correct ('H'|'S'|'D'|'P'|'R'), allowed, label }.
+ */
+export function generateStrategyDrill({ category = 'mixed', count = 15, rules = DEFAULT_RULES, rng = Math.random }) {
+  const items = [];
+  const seen = new Set();
+  let guard = 0;
+  while (items.length < count && guard++ < count * 40) {
+    const { cards, dealer } = generateStrategyHand(category, rng);
+    const key = `${describeHand(cards)}|${isTenValue(dealer) ? '10' : dealer}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const isPair = pairKey(cards[0]) === pairKey(cards[1]);
+    const allowed = { double: true, split: isPair, surrender: rules.surrender !== false };
+    const correct = basicStrategyAction(cards, dealer, rules, allowed);
+    items.push({
+      cards,
+      dealer: makeCard(dealer, pick(SUITS, rng)),
+      correct,
+      allowed,
+      code: strategyCode(cards, dealer, rules),
+      label: `${describeHand(cards)} vs ${isTenValue(dealer) ? '10' : dealer}`,
+    });
+  }
+  return { items, actions: ['H', 'S', 'D', 'P', 'R'].map((a) => ({ id: a, label: ACTION_LABELS[a] })) };
 }

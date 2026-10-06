@@ -38,6 +38,13 @@ export const BADGES = [
     check: ({ lesson, result }) => lesson.id === 'running-deck' && result.accuracy === 1 && result.durationMs <= 25000,
   },
   {
+    id: 'by-the-book',
+    name: 'By the book',
+    icon: '📋',
+    description: 'Complete every Basic strategy lesson.',
+    check: ({ track }) => ['strategy-hard', 'strategy-soft', 'strategy-pairs', 'strategy-surrender', 'strategy-mixed'].every((id) => track.skills[id]?.completions > 0),
+  },
+  {
     id: 'running-start',
     name: 'Running start',
     icon: '🧮',

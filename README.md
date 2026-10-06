@@ -24,7 +24,7 @@ Single-page React 19 + Tailwind 4 app built with Vite. All state lives in memory
 - **Feedback**: every completion screen lists exactly which card or checkpoint went wrong, what was entered versus what was correct, and can replay the full card sequence with the running count under each group.
 - **Review**: a spaced-repetition tab that surfaces the weakest practised skills.
 
-Everything else on the path (basic strategy, cancellation, deck estimation, true count, bet spreading, deviations, full table, casino conditions) is stubbed with a "coming soon" preview so the structure is visible. Stub lessons never block the path.
+Everything else on the path (cancellation, deck estimation, true count, bet spreading, deviations, full table, casino conditions) is stubbed with a "coming soon" preview so the structure is visible. Stub lessons never block the path.
 
 ## Project layout
 
