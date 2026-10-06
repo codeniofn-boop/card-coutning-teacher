@@ -33,6 +33,19 @@ export default function LearningPath() {
 
   return (
     <div>
+      <button
+        type="button"
+        onClick={() => navigate('deckDash')}
+        className="mb-4 flex w-full items-center gap-3 rounded-3xl border-2 border-ink-100 bg-white p-4 text-left shadow-sm active:bg-ink-100"
+      >
+        <span className="text-3xl">⏱️</span>
+        <span className="flex-1">
+          <span className="block text-[11px] font-black uppercase tracking-wider text-ink-500">Free play</span>
+          <span className="block font-black">Deck Dash</span>
+          <span className="block text-sm font-semibold text-ink-500">A full deck in 30, 40, 50 seconds or your own time. Keep the count.</span>
+        </span>
+        <span className="text-ink-300">›</span>
+      </button>
       {UNITS.map((unit, u) => {
         const color = UNIT_COLORS[u % UNIT_COLORS.length];
         const avail = unitAvailability(unit, system);

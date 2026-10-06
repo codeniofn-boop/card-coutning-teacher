@@ -82,8 +82,8 @@ export function generateFlashDrill({ system, groups = 20, groupSize = 1, checkpo
  * answer equals minus the sum of the removed cards, which is what makes this
  * the classic self-checking drill.
  */
-export function generateDeckCountdown({ system, removed = 1, rng = Math.random }) {
-  const deck = buildShoe({ decks: 1, rng });
+export function generateDeckCountdown({ system, removed = 1, decks = 1, rng = Math.random }) {
+  const deck = buildShoe({ decks, rng });
   const removedCards = deck.slice(0, removed);
   const cards = deck.slice(removed);
   const trail = runningCountTrail(system, cards);

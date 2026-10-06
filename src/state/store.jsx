@@ -128,6 +128,7 @@ export function reducer(state, action) {
           lessonId: lesson.id,
           result,
           review,
+          config: action.config || null,
           xpGain,
           levelUp: levelAfter > levelBefore ? levelAfter : null,
           streakEvent: streakUpdate.event,

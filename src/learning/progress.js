@@ -210,7 +210,7 @@ export function effectiveSpeedMs(lesson, skill, multiplier = 1) {
  */
 export function rampSpeed(lesson, skill, result) {
   const base = lesson.config?.baseSpeedMs;
-  if (!base) return null;
+  if (!base || lesson.config?.fixedSpeed) return null;
   const min = lesson.config.minSpeedMs ?? Math.round(base / 3);
   const current = skill?.speedMs ?? base;
   if (result.accuracy >= 0.95) return Math.max(min, Math.round(current * 0.88));

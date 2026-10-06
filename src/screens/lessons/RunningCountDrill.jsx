@@ -290,7 +290,11 @@ const CHATTER = [
 // ---------------------------------------------------------------- deck countdown
 
 function DeckCountdown({ lesson, system, speedMs, onMistake, onFinish, onProgress }) {
-  const drill = useMemo(() => generateDeckCountdown({ system, removed: 1 + Math.floor(Math.random() * 3) }), [system]);
+  const cfg = lesson.config;
+  const drill = useMemo(
+    () => generateDeckCountdown({ system, decks: cfg.decks || 1, removed: cfg.removed ?? 1 + Math.floor(Math.random() * 3) }),
+    [system, cfg.decks, cfg.removed],
+  );
   const [phase, setPhase] = useState('ready'); // ready | flash | answer
   const [countdown, setCountdown] = useState(3);
   const [cardIndex, setCardIndex] = useState(0);
@@ -350,7 +354,12 @@ function DeckCountdown({ lesson, system, speedMs, onMistake, onFinish, onProgres
   };
 
   if (phase === 'ready') {
-    return <Countdown value={countdown} note={`${total} cards, ${drill.removedCards.length} held out. ${(speedMs / 1000).toFixed(2)}s per card. Count starts at 0.`} />;
+    return (
+      <Countdown
+        value={countdown}
+        note={`${total} cards${drill.removedCards.length ? `, ${drill.removedCards.length} held out` : ''}. ${(speedMs / 1000).toFixed(2)}s per card, about ${Math.round((speedMs * total) / 1000)}s in all. Count starts at 0.`}
+      />
+    );
   }
 
   if (phase === 'answer') {

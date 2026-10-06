@@ -34,15 +34,16 @@ const DRILLS = {
  * Owns hearts for the session, the adaptive speed and the quit flow.
  * Every drill gets the same props: { lesson, system, speedMs, onMistake, onFinish, onProgress }.
  */
-export default function LessonRunner({ lessonId, review }) {
+export default function LessonRunner({ lessonId, review, configOverride }) {
   const { state, system, track, hearts, dispatch, navigate } = useStore();
-  const lesson = getLesson(lessonId);
+  const base = getLesson(lessonId);
+  const lesson = base && configOverride ? { ...base, config: { ...base.config, ...configOverride } } : base;
   const unit = lesson ? getUnit(lesson.unitId) : null;
   const skill = track.skills[lessonId];
-  const usesHearts = !review && lesson?.type !== 'reading';
+  const usesHearts = !review && lesson?.type !== 'reading' && !lesson?.noHearts;
 
   const [phase, setPhase] = useState(() => (usesHearts && hearts.count <= 0 ? 'outOfHearts' : 'intro'));
-  const [speedMs, setSpeedMs] = useState(() => (lesson ? effectiveSpeedMs(lesson, skill, state.settings.speedMultiplier) : null));
+  const [speedMs, setSpeedMs] = useState(() => (lesson ? (lesson.config?.fixedSpeed ? lesson.config.baseSpeedMs : effectiveSpeedMs(lesson, skill, state.settings.speedMultiplier)) : null));
   const [progress, setProgress] = useState(0);
   const [confirmQuit, setConfirmQuit] = useState(false);
   const [heartsLeft, setHeartsLeft] = useState(hearts.count);
@@ -77,7 +78,7 @@ export default function LessonRunner({ lessonId, review }) {
     const accuracy = raw.total ? raw.correct / raw.total : 0;
     const passed = accuracy >= (lesson.passAccuracy ?? DEFAULT_PASS_ACCURACY);
     const result = { ...raw, accuracy, passed, durationMs, speedMs: lesson.config?.baseSpeedMs ? speedMs : null };
-    dispatch({ type: 'lessonComplete', lessonId, result, review });
+    dispatch({ type: 'lessonComplete', lessonId, result, review, config: configOverride || null });
   };
 
   const changeSpeed = (ms) => {
@@ -119,7 +120,7 @@ export default function LessonRunner({ lessonId, review }) {
           startedAt.current = Date.now();
           setPhase('drill');
         }}
-        onQuit={() => navigate('path')}
+        onQuit={() => navigate(lesson.noHearts ? 'deckDash' : 'path')}
       />
     );
   }

@@ -42,7 +42,7 @@ export default function LessonComplete() {
         <div className="animate-pop text-7xl">{emoji}</div>
         <h1 className="mt-3 text-3xl font-black">{headline}</h1>
         <p className="mt-1 font-semibold text-ink-500">
-          {lesson.title} · Unit {unit.number}
+          {lesson.title} · {lesson.noHearts ? 'Free play' : `Unit ${unit.number}`}
           {c.review ? ' · review' : ''}
         </p>
         {!result.passed && (
@@ -127,10 +127,10 @@ export default function LessonComplete() {
       )}
 
       <div className="mt-auto flex flex-col gap-2 pt-8">
-        <Button full size="lg" variant="success" onClick={() => navigate(c.review ? 'review' : 'path')}>
+        <Button full size="lg" variant="success" onClick={() => navigate(lesson.noHearts ? 'deckDash' : c.review ? 'review' : 'path')}>
           Continue
         </Button>
-        <Button full variant="secondary" onClick={() => navigate('lesson', { lessonId: lesson.id, review: c.review, nonce: Date.now() })}>
+        <Button full variant="secondary" onClick={() => navigate('lesson', { lessonId: lesson.id, review: c.review, config: c.config, nonce: Date.now() })}>
           {result.passed ? 'Play again' : 'Try again'}
         </Button>
       </div>

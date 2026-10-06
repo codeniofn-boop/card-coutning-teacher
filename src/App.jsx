@@ -5,6 +5,7 @@ import LearningPath from './screens/LearningPath.jsx';
 import SystemCompare from './screens/SystemCompare.jsx';
 import Review from './screens/Review.jsx';
 import Profile from './screens/Profile.jsx';
+import DeckDash from './screens/DeckDash.jsx';
 import LessonRunner from './screens/lessons/LessonRunner.jsx';
 import LessonComplete from './screens/lessons/LessonComplete.jsx';
 
@@ -25,6 +26,12 @@ export default function App() {
           <SystemCompare />
         </Shell>
       );
+    case 'deckDash':
+      return (
+        <Shell>
+          <DeckDash />
+        </Shell>
+      );
     case 'review':
       return (
         <Shell>
@@ -38,7 +45,7 @@ export default function App() {
         </Shell>
       );
     case 'lesson':
-      return <LessonRunner key={`${screen.lessonId}-${screen.nonce || 0}`} lessonId={screen.lessonId} review={!!screen.review} />;
+      return <LessonRunner key={`${screen.lessonId}-${screen.nonce || 0}`} lessonId={screen.lessonId} review={!!screen.review} configOverride={screen.config} />;
     case 'lessonComplete':
       return <LessonComplete />;
     case 'path':

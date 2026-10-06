@@ -312,8 +312,27 @@ export const UNITS = [
 /** Flat list of every lesson with a back-reference to its unit. */
 export const LESSONS = UNITS.flatMap((unit) => unit.lessons.map((lesson) => ({ ...lesson, unitId: unit.id })));
 
+/**
+ * Free-play modes live outside the path. They never cost hearts, still earn
+ * XP and badges, and take their config from the screen that launches them.
+ */
+export const FREE_PLAY = [
+  {
+    id: 'deck-dash',
+    unitId: 'running',
+    title: 'Deck Dash',
+    blurb: 'A whole deck (or several) flashes past in the time you choose. Keep the count and enter it at the end.',
+    type: 'runningCount',
+    noHearts: true,
+    config: { mode: 'deckCountdown', decks: 1, removed: 1, baseSpeedMs: 600, minSpeedMs: 150, fixedSpeed: true, targetMs: 30000 },
+    xp: 20,
+    goal: 'Count every card before the clock runs out',
+    passAccuracy: 1,
+  },
+];
+
 export function getLesson(id) {
-  return LESSONS.find((l) => l.id === id) || null;
+  return LESSONS.find((l) => l.id === id) || FREE_PLAY.find((l) => l.id === id) || null;
 }
 
 export function getUnit(id) {

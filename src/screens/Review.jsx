@@ -41,6 +41,15 @@ export default function Review() {
         </Button>
       </div>
 
+      <button type="button" onClick={() => navigate('deckDash')} className="mt-3 flex w-full items-center gap-3 rounded-3xl border-2 border-ink-100 bg-white p-4 text-left shadow-sm active:bg-ink-100">
+        <span className="text-3xl">⏱️</span>
+        <span className="flex-1">
+          <span className="block font-black">Deck Dash</span>
+          <span className="block text-sm font-semibold text-ink-500">Count a full deck against a clock you choose.</span>
+        </span>
+        <span className="text-ink-300">›</span>
+      </button>
+
       <h2 className="mb-2 mt-6 text-sm font-black uppercase tracking-wide text-ink-500">Skill strength</h2>
       <div className="flex flex-col gap-2">
         {practised.map((lesson) => {

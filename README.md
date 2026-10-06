@@ -29,6 +29,7 @@ Every unit on the path is playable. Lessons unlock in order; the "Unlock every l
 - **Unit 9 · Playing deviations** (Hi-Lo): insurance at +3, Illustrious 18 in two parts, Fab 4, and a timed index drill.
 - **Unit 10 · Full table**: a simulator with configurable decks, penetration, other players and speed. You bet, play and keep the count; every bet, play and count check is graded and shown alongside the book answer.
 - **Unit 11 · Casino conditions**: distraction mode with chatter and uneven rhythm, a fast dealer, a noisy full table, and camouflage tips.
+- **Deck Dash** (free play): a full deck, or up to six, flashes evenly over a time you pick (20 to 90 seconds or custom). Enter the final count; no hearts at stake.
 - **Gamification**: XP and levels, daily streak with automatic streak freezes, hearts (regenerate every 30 minutes or refill via review), 15 badges, adaptive drill speed, per-skill accuracy and best-time stats.
 - **Feedback**: completion screens list exactly which card, hand or checkpoint went wrong, what was entered versus what was correct, and can replay the full card sequence.
 - **Review**: a spaced-repetition tab that surfaces the weakest practised skills.

@@ -8,7 +8,7 @@ import { formatCount } from '../../game/countingSystems.js';
 /** Pre-drill screen: what the lesson is, the goal, the values to remember and the speed slider. */
 export default function LessonIntro({ lesson, unit, system, review, rules, speedMs, onSpeedChange, onStart, onQuit }) {
   const cfg = lesson.config || {};
-  const timed = !!cfg.baseSpeedMs;
+  const timed = !!cfg.baseSpeedMs && !cfg.fixedSpeed;
   const per = lesson.type === 'table' ? 'per card' : ['strategy', 'cancellation', 'deviation', 'bet', 'trueCount', 'deckEstimation'].includes(lesson.type) ? 'per question' : cfg.mode === 'flash' && cfg.groupSize !== 1 ? 'per group' : 'per card';
   const min = cfg.minSpeedMs ?? Math.round((cfg.baseSpeedMs || 1000) / 3);
   const max = Math.round((cfg.baseSpeedMs || 1000) * 1.5);
@@ -20,7 +20,7 @@ export default function LessonIntro({ lesson, unit, system, review, rules, speed
           ← Back
         </button>
         <span className="text-[11px] font-black uppercase tracking-wider text-ink-500">
-          Unit {unit.number} · {unit.title}
+          {lesson.noHearts ? 'Free play' : `Unit ${unit.number} · ${unit.title}`}
         </span>
       </div>
 
@@ -30,6 +30,11 @@ export default function LessonIntro({ lesson, unit, system, review, rules, speed
         <p className="mt-2 font-semibold text-ink-700">{lesson.blurb}</p>
         {lesson.goal && <p className="mt-3 rounded-2xl bg-brand-50 px-3 py-2 text-sm font-bold text-brand-700">🎯 {lesson.goal}</p>}
         {review && <p className="mt-2 rounded-2xl bg-xp-400/20 px-3 py-2 text-sm font-bold text-xp-600">🔁 Review: no hearts at stake, half XP, and your hearts refill at the end.</p>}
+        {cfg.fixedSpeed && (
+          <p className="mt-2 rounded-2xl bg-white px-3 py-2 text-sm font-bold text-ink-700 shadow-sm">
+            {cfg.decks * 52 - (cfg.removed || 0)} cards in about {Math.round(cfg.targetMs / 1000)}s · {(cfg.baseSpeedMs / 1000).toFixed(2)}s per card
+          </p>
+        )}
       </div>
 
       {(lesson.type === 'cardValues' || lesson.type === 'runningCount' || lesson.type === 'cancellation') && (
